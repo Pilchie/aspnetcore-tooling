@@ -15,7 +15,7 @@ variables:
   value: .NETCORE
 - name: _DotNetValidationArtifactsCategory
   value: .NETCOREVALIDATION
-  
+
 # used for post-build phases, internal builds only
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
   - group: DotNet-AspNet-SDLValidation-Params
@@ -255,6 +255,12 @@ stages:
           name: Build
           displayName: Build
           condition: succeeded()
+        - script: |
+            pushd $(Build.SourcesDirectory)/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTests
+            yarn && yarn test
+            popd
+          displayName: Run VSCode integration tests
+          condition: succeeded()
         - task: PublishBuildArtifacts@1
           displayName: Upload TestResults
           condition: always()
@@ -287,6 +293,12 @@ stages:
             --prepareMachine
           name: Build
           displayName: Build
+          condition: succeeded()
+        - script: |
+            pushd $(Build.SourcesDirectory)/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTests
+            yarn && yarn test
+            popd
+          displayName: Run VSCode integration tests
           condition: succeeded()
         - task: PublishBuildArtifacts@1
           displayName: Upload TestResults
