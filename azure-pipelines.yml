@@ -256,7 +256,7 @@ stages:
           displayName: Build
           condition: succeeded()
         - script: |
-            pushd $(Build.SourcesDirectory)/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTests
+            pushd $(Build.SourcesDirectory)/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTest
             yarn && yarn test
             popd
           displayName: Run VSCode integration tests
@@ -295,7 +295,7 @@ stages:
           displayName: Build
           condition: succeeded()
         - script: |
-            pushd $(Build.SourcesDirectory)/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTests
+            pushd $(Build.SourcesDirectory)/src/Razor/test/Microsoft.AspNetCore.Razor.VSCode.FunctionalTest
             yarn && yarn test
             popd
           displayName: Run VSCode integration tests
