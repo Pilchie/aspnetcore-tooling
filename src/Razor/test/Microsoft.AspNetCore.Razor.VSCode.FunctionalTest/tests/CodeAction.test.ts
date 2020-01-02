@@ -42,13 +42,25 @@ suite('Code Actions', () => {
 
     test('Can provide Code Action .razor file', async () => {
         const firstLine = new vscode.Position(0, 0);
-        await razorEditor.edit(edit => edit.insert(firstLine, '@{ var x = typeof(MyClass); }\n'));
+        await razorEditor.edit(edit => edit.insert(firstLine, '@{ var x = new HtmlString("sdf"); }\n'));
+
+        let diagnosticsChanged = false;
+        vscode.languages.onDidChangeDiagnostics(diagnosticsChangedEvent => {
+            const diagnostics = vscode.languages.getDiagnostics(razorDoc.uri);
+            if (diagnostics.length > 0) {
+                diagnosticsChanged = true;
+            }
+        });
+
+        await pollUntil(() => {
+            return diagnosticsChanged;
+        }, /* timeout */ 10000, /* pollInterval */ 1000, true /* suppress timeout */);
 
         const position = new vscode.Position(0, 21);
         const codeAction = await GetCodeAction(razorDoc.uri, new vscode.Range(position, position));
 
         assert.equal(codeAction.length, 1);
-        assert.equal(codeAction[0].title, 'Using');
+        assert.equal(codeAction[0].title, 'Microsoft.AspNetCore.Html.HtmlString');
     });
 
     async function GetCodeAction(fileUri: vscode.Uri, position: vscode.Range): Promise<vscode.CodeAction[]> {
