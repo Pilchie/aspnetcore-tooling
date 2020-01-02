@@ -54,7 +54,7 @@ suite('Code Actions', () => {
 
         await pollUntil(() => {
             return diagnosticsChanged;
-        }, /* timeout */ 10000, /* pollInterval */ 1000, true /* suppress timeout */);
+        }, /* timeout */ 20000, /* pollInterval */ 1000, true /* suppress timeout */);
 
         const position = new vscode.Position(0, 21);
         const codeAction = await GetCodeAction(razorDoc.uri, new vscode.Range(position, position));
