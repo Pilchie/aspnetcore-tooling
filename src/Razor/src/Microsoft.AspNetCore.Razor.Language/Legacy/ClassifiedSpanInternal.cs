@@ -5,13 +5,14 @@ namespace Microsoft.AspNetCore.Razor.Language.Legacy
 {
     internal struct ClassifiedSpanInternal
     {
-        public ClassifiedSpanInternal(SourceSpan span, SourceSpan blockSpan, SpanKindInternal spanKind, BlockKindInternal blockKind, AcceptedCharactersInternal acceptedCharacters)
+        public ClassifiedSpanInternal(SourceSpan span, SourceSpan blockSpan, SpanKindInternal spanKind, BlockKindInternal blockKind, AcceptedCharactersInternal acceptedCharacters, int indentationLevel = 0)
         {
             Span = span;
             BlockSpan = blockSpan;
             SpanKind = spanKind;
             BlockKind = blockKind;
             AcceptedCharacters = acceptedCharacters;
+            IndentationLevel = indentationLevel;
         }
 
         public AcceptedCharactersInternal AcceptedCharacters { get; }
@@ -23,5 +24,7 @@ namespace Microsoft.AspNetCore.Razor.Language.Legacy
         public SourceSpan Span { get; }
 
         public SpanKindInternal SpanKind { get; }
+
+        public int IndentationLevel { get; }
     }
 }

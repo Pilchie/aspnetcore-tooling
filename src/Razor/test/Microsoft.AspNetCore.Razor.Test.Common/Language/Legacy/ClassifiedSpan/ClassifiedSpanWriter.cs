@@ -33,9 +33,17 @@ namespace Microsoft.AspNetCore.Razor.Language.Legacy
 
         protected void WriteClassifiedSpan(ClassifiedSpanInternal span)
         {
+            WriteIndentation(span);
             Write($"{span.SpanKind} span at {span.Span} (Accepts:{span.AcceptedCharacters})");
             WriteSeparator();
             Write($"Parent: {span.BlockKind} block at {span.BlockSpan}");
+        }
+
+        protected void WriteIndentation(ClassifiedSpanInternal span)
+        {
+            var level = span.IndentationLevel > 0 ? span.IndentationLevel : 0;
+            var spaces = 2;
+            Write(new string(' ', level * spaces));
         }
 
         protected void WriteSeparator()

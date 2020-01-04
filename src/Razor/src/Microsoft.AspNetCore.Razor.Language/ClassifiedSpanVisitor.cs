@@ -15,6 +15,7 @@ namespace Microsoft.AspNetCore.Razor.Language
         private List<ClassifiedSpanInternal> _spans;
         private BlockKindInternal _currentBlockKind;
         private SyntaxNode _currentBlock;
+        private int _currentIndentationLevel = -1;
 
         public ClassifiedSpanVisitor(RazorSourceDocument source)
         {
@@ -59,7 +60,7 @@ namespace Microsoft.AspNetCore.Razor.Language
                 return;
             }
 
-            WriteBlock(node, BlockKindInternal.Statement, base.VisitCSharpCodeBlock);
+            WriteBlock(node, BlockKindInternal.Statement, base.VisitCSharpCodeBlock, indent: false);
         }
 
         public override void VisitCSharpStatement(CSharpStatementSyntax node)
@@ -89,7 +90,7 @@ namespace Microsoft.AspNetCore.Razor.Language
 
         public override void VisitMarkupBlock(MarkupBlockSyntax node)
         {
-            WriteBlock(node, BlockKindInternal.Markup, base.VisitMarkupBlock);
+            WriteBlock(node, BlockKindInternal.Markup, base.VisitMarkupBlock, indent: false);
         }
 
         public override void VisitMarkupTagHelperAttributeValue(MarkupTagHelperAttributeValueSyntax node)
@@ -107,6 +108,13 @@ namespace Microsoft.AspNetCore.Razor.Language
             base.VisitMarkupTagHelperAttributeValue(node);
         }
 
+        public override void VisitMarkupElement(MarkupElementSyntax node)
+        {
+            _currentIndentationLevel++;
+            base.VisitMarkupElement(node);
+            _currentIndentationLevel--;
+        }
+
         public override void VisitMarkupStartTag(MarkupStartTagSyntax node)
         {
             WriteBlock(node, BlockKindInternal.Tag, n =>
@@ -116,7 +124,7 @@ namespace Microsoft.AspNetCore.Razor.Language
                 {
                     Visit(child);
                 }
-            });
+            }, indent: false);
         }
 
         public override void VisitMarkupEndTag(MarkupEndTagSyntax node)
@@ -128,7 +136,7 @@ namespace Microsoft.AspNetCore.Razor.Language
                 {
                     Visit(child);
                 }
-            });
+            }, indent: false);
         }
 
         public override void VisitMarkupTagHelperElement(MarkupTagHelperElementSyntax node)
@@ -269,7 +277,7 @@ namespace Microsoft.AspNetCore.Razor.Language
             base.VisitMarkupEphemeralTextLiteral(node);
         }
 
-        private void WriteBlock<TNode>(TNode node, BlockKindInternal kind, Action<TNode> handler) where TNode : SyntaxNode
+        private void WriteBlock<TNode>(TNode node, BlockKindInternal kind, Action<TNode> handler, bool indent = true) where TNode : SyntaxNode
         {
             var previousBlock = _currentBlock;
             var previousKind = _currentBlockKind;
@@ -277,7 +285,17 @@ namespace Microsoft.AspNetCore.Razor.Language
             _currentBlock = node;
             _currentBlockKind = kind;
 
+            if (indent)
+            {
+                _currentIndentationLevel++;
+            }
+
             handler(node);
+
+            if (indent)
+            {
+                _currentIndentationLevel--;
+            }
 
             _currentBlock = previousBlock;
             _currentBlockKind = previousKind;
@@ -302,7 +320,7 @@ namespace Microsoft.AspNetCore.Razor.Language
                 }
             }
 
-            var span = new ClassifiedSpanInternal(spanSource, blockSource, kind, _currentBlockKind, acceptedCharacters.Value);
+            var span = new ClassifiedSpanInternal(spanSource, blockSource, kind, _currentBlockKind, acceptedCharacters.Value, _currentIndentationLevel);
             _spans.Add(span);
         }
 
